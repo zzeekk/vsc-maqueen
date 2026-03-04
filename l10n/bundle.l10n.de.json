@@ -59,7 +59,7 @@
   "{0} has been flashed./{0}: Path to Micro:bit": "{0} wurde geflasht.",
   "The following error occurred when flashing {0}: {1}/{0}: Path to Micro:bit{1}: Fehlermeldung": "Folgender Fehler trat beim Flashen von {0} auf: ",
   "Program is running...": "Programm läuft...",
-  "Program has been terminated.": "Programm wurde beendet.",
+  "Program has ended.": "Programm ist beendet.",
   "Flash MicroPython to Micro:bit.": "Flash MicroPython auf Micro:bit.",
   "Port has been closed.": "Port wurde geschlossen.",
   "Uploading {0}.../{0}: file name": "{0} hochladen...",

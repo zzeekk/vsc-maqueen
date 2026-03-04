@@ -1,6 +1,8 @@
 import * as vscode from "vscode";
 import * as fs from "fs";
 import * as path from "path";
+import { VerboseError } from "../exception";
+import { verbose } from "./verbose";
 
 /**
  * Fehlertypen fürs Logfile
@@ -56,7 +58,8 @@ export class ErrorLogger {
         }
         fullMessage += "\n\n";
 
-        fs.appendFileSync(this.errorLogPath!, fullMessage, { encoding: "utf8" });
+        //fs.appendFileSync(this.errorLogPath!, fullMessage, { encoding: "utf8" });
+        verbose(`Errorlog: ${fullMessage}`);
     }
 
     private prepareErrorLog() {

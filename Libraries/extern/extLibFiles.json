@@ -1,11 +1,11 @@
 [
     {
         "label": "mbrobot_plusV2.py",
-        "hash": "53c3b60ef4e58d70e11dc10135c1522f2ac035b4e2d26ed931a2b6287b95abc9",
+        "hash": "b5d5a33772e4d023e943f6e26288816cfff40377349b25f28ac5817dc1543272",
         "type": 1,
         "enabled": true,
         "props": {
-            "date": "Tue, 07 Oct 2025 16:41:20 GMT",
+            "date": "Wed, 12 Nov 2025 23:00:48 GMT",
             "url": "https://raw.githubusercontent.com/lernbaum/microbit/refs/heads/main/mbrobot_plusV2.py"
         }
     }

@@ -524,7 +524,6 @@ function fetchFileFromGitHub(url: string): Promise<Uint8Array> {
             reject(`Error fetching file: ${error.message}`);
         });
     });
-
 }
 function fetchFileFromGitHubIfModified(url: string, lastModified: string | null): Promise<{ content: Uint8Array | null, modified: boolean }> {
     return new Promise((resolve, reject) => {

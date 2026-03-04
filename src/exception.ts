@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { l10n } from 'vscode';
 
-class VerboseError extends Error{
+export class VerboseError extends Error{
     static outputChannel = vscode.window.createOutputChannel("MaqueenErrors");
     public readonly verboseErrorMessage: string;
     constructor(verboseErrorMessage: string, message: string){

@@ -36,22 +36,22 @@ function getMicrobitDrives() {
             });
         } else if (os.platform() === 'win32') {
             // Windows - Laufwerksbuchstaben abrufen
-            exec('wmic logicaldisk get VolumeName,name', (error, stdout, stderr) => {
+            exec('Get-CimInstance Win32_LogicalDisk | Select DeviceID, VolumeName | ConvertTo-Json', (error, stdout, stderr) => {
                 if (error) {
                     reject(new Exception(`Error when retrieving the volumes: ${stderr}`, 318));
                 } else {
-                    const drives = stdout.split('\r\n').filter(line => line.includes(':'));
-                    const mdrives = drives.filter(drive => drive.match(/MICROBIT/) !== null);
+                    let drives = JSON.parse(stdout);
+                    if(!Array.isArray(drives)){
+                        drives = [drives];
+                    }
+                    const mdrives = drives.filter((drive: { VolumeName: string; }) => drive.VolumeName == "MICROBIT");
+                    //const drives = stdout.split('\r\n').filter(line => line.includes(':'));
+                    //const mdrives = drives.filter(drive => drive.match(/MICROBIT/) !== null);
                     if (!mdrives || mdrives.length === 0) {
                         reject(new CustomError('No micro:bit was found.', errorType.noMicrobit, 311));
                     } else {
-                        const r: string[] = [];
-                        for (let i = 0; i < mdrives.length; i++) {
-                            const m = mdrives[i].match(/[A-Z]:/);
-                            if (m) {
-                                r.push(m[0]);
-                            }
-                        }
+                        const r:string[] = mdrives.map((drive: { DeviceID: string; })=>drive.DeviceID);
+                        //const r: string[] = [];
                         resolve(r);
                     }
                 }

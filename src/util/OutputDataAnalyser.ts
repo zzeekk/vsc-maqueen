@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { revealText } from './language';
 import { l10n } from 'vscode';
+import { verbose } from './verbose';
 
 export class OutputDataAnalyser {
     private state = state.on;
@@ -48,7 +49,7 @@ export class OutputDataAnalyser {
                 search: /^MicroPython v/,
                 delete: null,
                 on: false,
-                replace: ` > ${l10n.t('Program has been terminated.')}`
+                replace: ` > ${l10n.t('Program has ended.')}`
             },
             {
                 search: /^Type "help\(\)" for more information\.$/,
@@ -162,7 +163,7 @@ export class OutputDataAnalyser {
     };
 
     public dataHandler = (data: string) => {
-        console.log(data);
+        verbose(data);
         if (this.observeDataCondition(data)) {
             this.observedDataFlag = true;
         }

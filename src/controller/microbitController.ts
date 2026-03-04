@@ -10,6 +10,8 @@ import { flashMicrobit } from '../util/flashMicrobit';
 import { exec } from 'child_process';
 import { l10n } from 'vscode';
 import { ErrorType, logError } from '../util/logErrors';
+import { verbose } from '../util/verbose';
+import { once } from 'events';
 
 const MICROBIT_VID = "0d28"; // micro:bit / DAPLink (case-insensitive)
 
@@ -88,6 +90,9 @@ export class MicrobitController implements ActionHolder {
                 return this.createActionFrame(
                     async (file: any) => {
                         vscode.commands.executeCommand('setContext', 'maqueen.fileUploadRunning', true);
+                        const opened = vscode.workspace.textDocuments.find(d => d.uri.toString() === file.path.toString());
+                        const doc = opened ?? await vscode.workspace.openTextDocument(file.path);
+                        doc.save();
                         this.analyser.clear();
                         this.analyser.setOn(false);
                         await this.connectToMicrobit();
@@ -213,7 +218,9 @@ export class MicrobitController implements ActionHolder {
         const p: Promise<string> = new Promise(async (resolve, reject) => {
             const portList = await SerialPort.list();
             const port = portList.filter(p => p.vendorId?.toLowerCase() === MICROBIT_VID);
+            verbose(`Portlist: ${JSON.stringify(portList)}`);
             if (port.length === 1) {
+                verbose(`Port: ${JSON.stringify(port[0])}`);
                 resolve(port[0].path);
             } else if (port.length > 1) {
                 reject(new CustomError("More than one microbit was detected.", errorType.moreThanOneMicrobit, 302));
@@ -224,18 +231,37 @@ export class MicrobitController implements ActionHolder {
         return p;
     }
 
-    private openPort(port: SerialPort) {
-        return new Promise<void>((resolve, reject) => {
-            port.open((err) => {
-                if (err) {
-                    logError(ErrorType.CONNECTION, "openPort", err);
-                    reject(err);
-                } else {
-                    resolve();
-                }
-            });
-        });
+    private openPort = async (port: SerialPort): Promise<void> => {
+
+    try {
+        port.open();                     // startet asynchron
+        await Promise.race([
+            once(port, 'open'),           // Erfolg
+            once(port, 'error')           // Fehler direkt abfangen
+        ]);
+        await new Promise<void>(resolve =>
+            port.set({ dtr: true, rts: true }, () => resolve())
+        );
+        // optional: kurzes Delay für ARM-Treiber
+        await new Promise(r => setTimeout(r, 200));
+    } catch (err) {
+        logError(ErrorType.CONNECTION, "openPort", err);
+        throw err;
     }
+};
+
+    // private openPort(port: SerialPort) {
+    //     return new Promise<void>((resolve, reject) => {
+    //         port.open((err) => {
+    //             if (err) {
+    //                 logError(ErrorType.CONNECTION, "openPort", err);
+    //                 reject(err);
+    //             } else {
+    //                 resolve();
+    //             }
+    //         });
+    //     });
+    // }
     
     private open = async () : Promise<SerialPort> => {
         if(this.port?.isOpen) return this.port;
@@ -253,9 +279,10 @@ export class MicrobitController implements ActionHolder {
             this.parserRegistered = false;
             try {
                 const portPath = await this.lookForMicrobit();
-                const p = new SerialPort({ path: portPath, baudRate: this.BAUD_RATE, autoOpen: true });
+                const p = new SerialPort({ path: portPath, baudRate: this.BAUD_RATE, autoOpen: false });
                 this.port = p;
-                p.on("error", (err)=>{logError(ErrorType.CONNECTION, "portError", err);})
+                await this.openPort(p);
+                //p.on("error", (err)=>{logError(ErrorType.CONNECTION, "portError", err);})
                 return p;
             } catch(err){
                 logError(ErrorType.CONNECTION, "failed to find or open a port", err);

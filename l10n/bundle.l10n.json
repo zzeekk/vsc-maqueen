@@ -45,7 +45,7 @@
     ]
   },
   "Program is running...": "Program is running...",
-  "Program has been terminated.": "Program has been terminated.",
+  "Program has ended.": "Program has ended.",
   "The URL {0} is not in the correct format./{0} ist eine URL zu einem File auf GitHub.": {
     "message": "The URL {0} is not in the correct format.",
     "comment": [

@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import path from 'path';
 import { exec } from 'child_process';
 import os from 'os';
+import { promises as fs } from 'fs';
 import { CustomError, errorType, Exception, forwardError, getErrorMessage } from '../exception';
 import { l10n } from 'vscode';
 
@@ -99,27 +100,43 @@ export async function flashMicrobit(extensionPath: string, send: Function, custo
     const sourceFilePath = customFirmwarePath || path.join(extensionPath, 'micropython.hex');
     try {
         const microbitDrives = await getMicrobitDrives();
-        console.log(microbitDrives)
         const data = await vscode.workspace.fs.readFile(vscode.Uri.file(sourceFilePath));
+        const fileSizeKB = (data.length / 1024).toFixed(2);
+        send(l10n.t({ message: 'Flashing firmware ({0} KB) to Micro:bit...', args: [fileSizeKB], comment: ['{0}: File size in KB'] }));
+        
         for (let i = 0; i < microbitDrives.length; i++) {
             const targetFilePath = path.join(microbitDrives[i], 'MICROBIT.hex');
-            console.log(targetFilePath)
-            writeFileToMicrobit(data, vscode.Uri.file(targetFilePath), send);
-            //vscode.workspace.fs.copy(vscode.Uri.file(sourceFilePath), vscode.Uri.file(targetFilePath));
+            await writeFileToMicrobit(data, targetFilePath, send);
         }
     } catch (err: any) {
         throw forwardError(err, getErrorMessage(err), errorType.flash, 322);
     }
 }
-async function writeFileToMicrobit(data: Uint8Array, targetUri: vscode.Uri, send: Function) {
-    console.log(targetUri)
+async function writeFileToMicrobit(data: Uint8Array, targetPath: string, send: Function) {
     try {
-        send(l10n.t({ message: 'Flash MicroPython to {0}. Please wait...', args: [targetUri.fsPath], comment: ['{0}: Path to Micro:bit'] }));
-        await vscode.workspace.fs.writeFile(targetUri, data);
-        send(l10n.t({ message: '{0} has been flashed.', args: [targetUri.fsPath], comment: ['{0}: Path to Micro:bit'] }));
+        const totalBytes = data.length;
+        const chunkSize = 64 * 1024; // 64 KB chunks
+        let bytesWritten = 0;
+
+        send(l10n.t({ message: 'Writing to {0}...', args: [targetPath], comment: ['{0}: Path to Micro:bit'] }));
+
+        // Write file in chunks and report progress
+        for (let offset = 0; offset < totalBytes; offset += chunkSize) {
+            const chunk = data.slice(offset, Math.min(offset + chunkSize, totalBytes));
+            await fs.writeFile(targetPath, Buffer.from(chunk), { flag: offset === 0 ? 'w' : 'a' });
+            
+            bytesWritten = Math.min(offset + chunkSize, totalBytes);
+            const percentComplete = ((bytesWritten / totalBytes) * 100).toFixed(1);
+            const mbWritten = (bytesWritten / 1024 / 1024).toFixed(2);
+            const mbTotal = (totalBytes / 1024 / 1024).toFixed(2);
+            
+            send(l10n.t({ message: 'Progress: {0}% ({1} MB / {2} MB)', args: [percentComplete, mbWritten, mbTotal], comment: ['{0}: Percentage, {1}: MB written, {2}: MB total'] }));
+        }
+
+        send(l10n.t({ message: '{0} has been flashed successfully.', args: [targetPath], comment: ['{0}: Path to Micro:bit'] }));
     } catch (err: any) {
         new Exception(getErrorMessage(err), 319);
-        vscode.window.showErrorMessage(l10n.t({ message: 'The following error occurred when flashing {0}: {1}', args: [targetUri.fsPath, err.message], comment: ['{0}: Path to Micro:bit', '{1}: Fehlermeldung'] }));
+        vscode.window.showErrorMessage(l10n.t({ message: 'The following error occurred when flashing {0}: {1}', args: [targetPath, err.message], comment: ['{0}: Path to Micro:bit', '{1}: Error message'] }));
     }
 }
 

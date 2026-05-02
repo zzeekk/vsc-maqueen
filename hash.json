@@ -1,16 +1,5 @@
 [
     {
-        "name": "__init__.py",
-        "dirs": [
-            "microbit"
-        ],
-        "extDirs": [
-            "Microbit-Basic-Stubs-main",
-            "microbit"
-        ],
-        "hash": "12f45bbb9bd3195d402a28e3cd3f93809d7979937fc94169d79bcd8045f7c865"
-    },
-    {
         "name": "accelerometer.py",
         "dirs": [
             "microbit"
@@ -19,7 +8,7 @@
             "Microbit-Basic-Stubs-main",
             "microbit"
         ],
-        "hash": "a283dd851c302577ec3678ab326cff10aa3fac043b939b4fbc81f516d767e8dc"
+        "hash": "8ac02f8db819dd4be3772870104ab62d0fafaddb1c30c3353c6efe279632c213"
     },
     {
         "name": "compass.py",
@@ -30,7 +19,7 @@
             "Microbit-Basic-Stubs-main",
             "microbit"
         ],
-        "hash": "7b3f06e3f7b3470eb4538aa18910a1a86ffe8e021ce30a2f8f96ef620a948ec6"
+        "hash": "e72c6f4cb360a0dcad7ea61916fba6a63b0e09d7034a257d921d1a0d509e03bc"
     },
     {
         "name": "display.py",
@@ -41,7 +30,7 @@
             "Microbit-Basic-Stubs-main",
             "microbit"
         ],
-        "hash": "e915811ed9ec52228504951cf895231041afeacbf3dc018c9b6b995a332946c6"
+        "hash": "e198ea937931e893cf0c6813b6351df4d08fcf57d99f6bcd14a565c20c555c7a"
     },
     {
         "name": "i2c.py",
@@ -52,7 +41,7 @@
             "Microbit-Basic-Stubs-main",
             "microbit"
         ],
-        "hash": "738147f8a5d2d24204d604484995573ec696bde8cd12b4ba9bad873c9410b79d"
+        "hash": "7a11a15bd2808efd73f074ae00684da89dff5f53ccda60b786a19a35b8538e8a"
     },
     {
         "name": "microphone.py",
@@ -63,7 +52,7 @@
             "Microbit-Basic-Stubs-main",
             "microbit"
         ],
-        "hash": "62ffcc5f5f5bf786c726fe4bb567c6ffa3aec725a836ac92e95d033a496b026f"
+        "hash": "276a625e1f2ea0bf4e5fa0ea9c7fe2fbfe79f17989615f5624a104f36b42ee7f"
     },
     {
         "name": "power.py",
@@ -74,7 +63,7 @@
             "Microbit-Basic-Stubs-main",
             "microbit"
         ],
-        "hash": "bfe869f8f3f93c6142dc2f290d86ad0f31fd25745829b3bf0a2fe1c29a5ac541"
+        "hash": "ec1375a89621a0be2cdee12d6f1442cdbfe1177e5027eb305181dcd4ba816c80"
     },
     {
         "name": "speaker.py",
@@ -85,7 +74,7 @@
             "Microbit-Basic-Stubs-main",
             "microbit"
         ],
-        "hash": "59ddeba2af1559fcb202a2659ecf3cd9a2cdb2b1f214fcd617eb73c974e37f5e"
+        "hash": "35b5734d29901552a12cf05c23ab6d6ba931910fd11f77ea5eef4c241f0d4271"
     },
     {
         "name": "spi.py",
@@ -96,7 +85,7 @@
             "Microbit-Basic-Stubs-main",
             "microbit"
         ],
-        "hash": "8ba36a32fc6652f67af90f0ea93db4a7d9f4002a4c0c3c8e292c2743a6d815b0"
+        "hash": "8c7cfb7e917f78621bcd1bdc9748887831ff6bc4773139460c46ba928cd3fb9a"
     },
     {
         "name": "uart.py",
@@ -107,7 +96,18 @@
             "Microbit-Basic-Stubs-main",
             "microbit"
         ],
-        "hash": "dfe88b304fc366b9950691513fb1d399c4918c03a91707008c5ff9b1387a215e"
+        "hash": "7fefc62b90a9a458ee6cb30d7b1155269d41928b44f869df3e145ef386b53266"
+    },
+    {
+        "name": "__init__.py",
+        "dirs": [
+            "microbit"
+        ],
+        "extDirs": [
+            "Microbit-Basic-Stubs-main",
+            "microbit"
+        ],
+        "hash": "a808859229c5cdd55b894662c51d4f57a1760c18f0ee7e79e65aec31fe6abf5f"
     },
     {
         "name": "__init__.py",
@@ -118,7 +118,7 @@
             "Microbit-Extended-Stubs-main",
             "audio"
         ],
-        "hash": "917a28d9bfbc0a6478651fd354f94501c514618dc107108353e109f5399960ca"
+        "hash": "4cbb6913e9b2033ae90aa3a50b0ac56f0a9a86000808d094f09fed29fe5eeb69"
     },
     {
         "name": "__init__.py",
@@ -129,7 +129,7 @@
             "Microbit-Extended-Stubs-main",
             "log"
         ],
-        "hash": "40918c7b324d380b850ad5fd451d11a47064ada26b6341a5288a10e9f047fffa"
+        "hash": "d2e69ac24552a8a403f190ce25b75f96e90927eb417cd940474911897edf8fc6"
     },
     {
         "name": "__init__.py",
@@ -140,7 +140,7 @@
             "Microbit-Extended-Stubs-main",
             "machine"
         ],
-        "hash": "c0f69aa1eeaa7d98813c2f5f6fd9e77f26757cb45a76a103bf28f6ce3a2da5c3"
+        "hash": "7fbf7b144ab1d52f439339b0f0a204fe9e6f63e57ef7748627e22c0e4a032b6d"
     },
     {
         "name": "__init__.py",
@@ -151,7 +151,7 @@
             "Microbit-Extended-Stubs-main",
             "music"
         ],
-        "hash": "c8dd00dfc03230544a3deb46d938dae73de5b1c22a962552b846eb25207c6e15"
+        "hash": "b03ef2b0ce29973ba2cd6d2273dafd41076677986403c35eb591fdf50a62adaa"
     },
     {
         "name": "__init__.py",
@@ -162,7 +162,7 @@
             "Microbit-Extended-Stubs-main",
             "neopixel"
         ],
-        "hash": "2d7a4c2742b54216800765ec8bdc3e66104f2783b9d80ac7292f0498fb131169"
+        "hash": "a27283b999e204fc8209a62399f7457592cea1893d0508eb3ce5a5177f72d4db"
     },
     {
         "name": "__init__.py",
@@ -173,7 +173,7 @@
             "Microbit-Extended-Stubs-main",
             "os"
         ],
-        "hash": "bb8b7eaf784a60e165d604e834ccb70cb63c3a3a9c4a59e602c846466ef7bb31"
+        "hash": "4d6d9a719abd727cb92e732a7795d3c2744e16742c9cffed9f86db15dda7fd19"
     },
     {
         "name": "__init__.py",
@@ -184,7 +184,7 @@
             "Microbit-Extended-Stubs-main",
             "radio"
         ],
-        "hash": "4cb44253aba5951a8a3e9524d8579a275175d71e3e4082ef65c0e7a1958f9db8"
+        "hash": "4229f3a2a3b9756c610e21aafbed9736502e40d42f6b80248ee785d78ac6dfd2"
     },
     {
         "name": "__init__.py",
@@ -195,7 +195,7 @@
             "Microbit-Extended-Stubs-main",
             "random"
         ],
-        "hash": "464a25002b403bd37a7d6c151cfc2ba47706f8b3f259b09e41e80e93845d5822"
+        "hash": "04d3c2ae5e526ab85b71e966b9dfeeb6f72c2650aa9d66a38008bd3a990b0284"
     },
     {
         "name": "__init__.py",
@@ -206,7 +206,7 @@
             "Microbit-Extended-Stubs-main",
             "speech"
         ],
-        "hash": "017fc075dc96102f49d3072214443409bc8f48b03cc90080f34e03c01bfd46d8"
+        "hash": "c0eccfaa7f76430766c483fbe9a767670e0b9633c1cc3b278403732afcd87565"
     },
     {
         "name": "__init__.py",
@@ -217,6 +217,6 @@
             "Microbit-Extended-Stubs-main",
             "utime"
         ],
-        "hash": "389dce6ee47d2beaa400584f79f581ce318728d3e5cc2db315a2cd38f5c87fed"
+        "hash": "76988493f949903172faae38b61eca41617d2a0b1c6a3cdec45251ef3cd4eb32"
     }
 ]

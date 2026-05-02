@@ -4,12 +4,6 @@
   "description": "%description%",
   "publisher": "DavidEichenberger",
   "license": "MIT",
-  "files": [
-    "README.md",
-    "LICENSE.md",
-    "Libraries/extern/gitHub",
-    "Libraries/extern/local"
-  ],
   "version": "0.0.20",
   "icon": "resources/extensionIcon.png",
   "repository": {

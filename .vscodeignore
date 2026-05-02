@@ -1,9 +1,11 @@
-.vscode/**
-.vscode-test/**
+.vscode
+.vscode-test
 .VSCodeCounter
 *.vsix
 resources/extension.ai
-src/**
+src
+logs
+.github
 .gitignore
 .yarnrc
 vsc-extension-quickstart.md

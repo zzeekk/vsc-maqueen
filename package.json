@@ -183,14 +183,12 @@
           "command": "maqueen.disableLib",
           "group": "navigation",
           "when": "view==extLibFileExplorer&&(viewItem==enabledUsed||viewItem==enabledOldUsed||viewItem==enabledNotUsed)"
-        }
-        ,
+        },
         {
           "command": "maqueen.deleteExtLib",
           "group": "navigation",
           "when": "view==extLibFileExplorer&&(viewItem==enabledUsed||viewItem==enabledOldUsed||viewItem==enabledNotUsed||viewItem==disabledUsed||viewItem==disabledOlderUsed||viewItem==disabledNotUsed)"
-        }
-        ,
+        },
         {
           "command": "maqueen.removeExtLib",
           "group": "navigation",
@@ -248,26 +246,31 @@
         {
           "id": "control",
           "name": "%views.control%",
+          "icon": "resources/activityBarIcon.png",
           "when": "maqueen.extensionActivated==true"
         },
         {
           "id": "mainFileExplorer",
           "name": "%views.mainFileExplorer%",
+          "icon": "resources/python.svg",
           "when": "maqueen.workspaceIsOk=='true'&&maqueen.extensionActivated==true"
         },
         {
           "id": "modFileExplorer",
           "name": "%views.modFileExplorer%",
+          "icon": "resources/python.svg",
           "when": "maqueen.showModView==true&&maqueen.workspaceIsOk=='true'&&maqueen.extensionActivated==true"
         },
         {
           "id": "welcome",
           "name": "%views.welcome%",
+          "icon": "resources/extensionIcon.png",
           "when": "maqueen.workspaceIsOk&&maqueen.workspaceIsOk!='true'"
         },
         {
           "id": "extLibFileExplorer",
           "name": "%views.extLibFileExplorer%",
+          "icon": "resources/python.svg",
           "when": "maqueen.extensionActivated==true&&(maqueen.workspaceIsOk=='true'||workspaceFolderCount == 0)"
         }
       ]
@@ -306,10 +309,11 @@
   "devDependencies": {
     "@types/mocha": "^10.0.10",
     "@types/node": "24.9.1",
-    "@types/vscode": "^1.10.5",
+    "@types/vscode": "^1.118.0",
     "@typescript-eslint/eslint-plugin": "^8.46.2",
     "@typescript-eslint/parser": "^8.46.2",
     "@vscode/test-electron": "^2.5.2",
+    "@vscode/vsce": "^3.9.1",
     "eslint": "^9.38.0",
     "glob": "^11.0.3",
     "mocha": "^11.7.4",

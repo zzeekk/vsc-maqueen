@@ -8,28 +8,12 @@ on:
 
 jobs:
   build:
-    strategy:
-      matrix:
-        include:
-          - os: macos-latest
-            platform: darwin
-            arch: arm64
-          - os: windows-latest
-            platform: win32
-            arch: x64
-          - os: windows-latest
-            platform: win32
-            arch: arm64
-          - os: ubuntu-latest
-            platform: linux
-            arch: x64
 
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
 
-      # Node 24, weil VS Code/Electron 41.x auf Node 24 basiert (relevant fürs ABI der nativen Addons)
       - uses: actions/setup-node@v4
         with:
           node-version: 24
@@ -37,11 +21,11 @@ jobs:
       - name: Install deps
         run: npm ci
 
-      - name: Package VSIX (per target)
-        run: npx vsce package --target ${{ matrix.platform }}-${{ matrix.arch }}
+      - name: Package VSIX
+        run: npx vsce package
 
       - name: Upload VSIX artifact
         uses: actions/upload-artifact@v4
         with:
-          name: vsc-maqueen-${{ matrix.platform }}-${{ matrix.arch }}-vsix
-          path: "*.vsix"        
+          name: vsc-maqueen.vsix
+          path: "*.vsix"

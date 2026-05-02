@@ -29,16 +29,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # Node 22, weil VS Code/Electron 37.x auf Node 22 basiert (relevant fürs ABI der nativen Addons)
+      # Node 24, weil VS Code/Electron 41.x auf Node 24 basiert (relevant fürs ABI der nativen Addons)
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
 
       - name: Install deps
         run: npm ci
 
       - name: Rebuild native addons for Electron (per target)
-        run: npx electron-rebuild --force --version=39.8.9 --arch=${{ matrix.arch }}
+        run: npx electron-rebuild --force --version=41.5.0 --arch=${{ matrix.arch }}
 
       - name: Package VSIX (per target)
         run: npx vsce package --target ${{ matrix.platform }}-${{ matrix.arch }}
@@ -46,5 +46,5 @@ jobs:
       - name: Upload VSIX artifact
         uses: actions/upload-artifact@v4
         with:
-          name: vscode-extension-vsix
+          name: vsc-maqueen-${{ matrix.platform }}-${{ matrix.arch }}-vsix
           path: "*.vsix"        

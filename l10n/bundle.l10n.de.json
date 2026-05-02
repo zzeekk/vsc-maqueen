@@ -63,6 +63,7 @@
   "Flash MicroPython to Micro:bit.": "Flash MicroPython auf Micro:bit.",
   "Port has been closed.": "Port wurde geschlossen.",
   "Uploading {0}.../{0}: file name": "{0} hochladen...",
+  "Compiling {0} with mpy-cross.../{0}: file name": "Kompiliere {0} mit mpy-cross...",
   "All files on the Micro:bit have been deleted.": "Alle Dateien auf dem Micro:bit wurden gelöscht.",
   "Try to eject Micro:bit drive...": "Versuche das Micro:bit-Laufwerk auszuwerfen...",
   "Micro:bit drive has been ejected.": "Das Micro:bit-Laufwerk wurde ausgeworfen.",
@@ -70,5 +71,6 @@
   "{0} was successfully uploaded./{0}: file name": "{0} wurde erfolgreich hochgeladen.",
   "Deletes all files on Micro:bit.": "Löscht alle Dateien auf dem Micro:bit.",
   "No workspace is open.": "Kein workspace ist geöffnet.",
+  "The mpy-cross executable was not found. Check the maqueen.mpyCross setting and ensure it points to an existing executable file.": "Die mpy-cross-Executable wurde nicht gefunden. Prüfe die Einstellung maqueen.mpyCross und stelle sicher, dass sie auf eine vorhandene ausführbare Datei zeigt.",
   "The URL does not have the correct format.": "Die URL hat nicht das korrekte Format."
 }

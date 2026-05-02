@@ -44,6 +44,25 @@
           "type": "boolean",
           "default": false,
           "description": "%properties.logErrors%"
+        },
+        "maqueen.mpyCross": {
+          "type": "string",
+          "default": "",
+          "description": "%properties.mpyCross%"
+        },
+        "maqueen.chunkSizePy": {
+          "type": "number",
+          "default": 54,
+          "minimum": 8,
+          "maximum": 200,
+          "description": "%properties.chunkSizePy%"
+        },
+        "maqueen.chunkSizeMpy": {
+          "type": "number",
+          "default": 100,
+          "minimum": 4,
+          "maximum": 200,
+          "description": "%properties.chunkSizeMpy%"
         }
       }
     },

@@ -7,13 +7,17 @@ import { getRootPath } from '../util/pathHelper';
 import path from 'path';
 import { ListenerInput } from '../types';
 import { flashMicrobit } from '../util/flashMicrobit';
-import { exec } from 'child_process';
+import { exec, execFile } from 'child_process';
 import { l10n } from 'vscode';
 import { ErrorType, logError } from '../util/logErrors';
 import { verbose } from '../util/verbose';
 import { once } from 'events';
+import os from 'os';
+import { promises as fs } from 'fs';
+import { promisify } from 'util';
 
 const MICROBIT_VID = "0d28"; // micro:bit / DAPLink (case-insensitive)
+const execFileAsync = promisify(execFile);
 
 /**
  * 
@@ -90,9 +94,12 @@ export class MicrobitController implements ActionHolder {
                 return this.createActionFrame(
                     async (file: any) => {
                         vscode.commands.executeCommand('setContext', 'maqueen.fileUploadRunning', true);
-                        const opened = vscode.workspace.textDocuments.find(d => d.uri.toString() === file.path.toString());
-                        const doc = opened ?? await vscode.workspace.openTextDocument(file.path);
-                        doc.save();
+                        // .mpy files are binary — skip text document open/save
+                        if (!String(file.label).endsWith('.mpy')) {
+                            const opened = vscode.workspace.textDocuments.find(d => d.uri.toString() === file.path.toString());
+                            const doc = opened ?? await vscode.workspace.openTextDocument(file.path);
+                            doc.save();
+                        }
                         this.analyser.clear();
                         this.analyser.setOn(false);
                         await this.connectToMicrobit();
@@ -361,9 +368,10 @@ export class MicrobitController implements ActionHolder {
                 data = data.replace(/#.*/gm, '');
                 //data = data.replace(/ä/, '\\xc3\\xa4').replace(/ö/, '\\xc3\\xb6').replace(/ü/, '\\xc3\\xbc').replace(/Ä/, '\\xc3\\x84').replace(/Ö/, '\\xc3\\x96').replace(/Ü/, '\\xc3\\x9C');
                 const bd = Buffer.from(data);
-                for (let i = 0; i < data.length; i = i + 54) {
-                    //commands.push({ command: 'f(b' + JSON.stringify(data.substring(i, i + 54)) + ')', function: async () => await this.analyser.waitForPatern(/^[1-9][0-9]/, 5000, 'timeOut') });
-                    commands.push({ command: 'f(b' + JSON.stringify(bd.subarray(i, i + 54).toString().replace(/ä/g, '\\xc3\\xa4').replace(/ö/g, '\\xc3\\xb6').replace(/ü/g, '\\xc3\\xbc').replace(/Ä/g, '\\xc3\\x84').replace(/Ö/g, '\\xc3\\x96').replace(/Ü/g, '\\xc3\\x9C')) + ')', function: async () => await this.analyser.waitForPattern(/^[1-9][0-9]*/, 5000, 'timeOut') });
+                const PY_CHUNK = vscode.workspace.getConfiguration('maqueen').get<number>('chunkSizePy') ?? 54;
+                for (let i = 0; i < data.length; i = i + PY_CHUNK) {
+                    //commands.push({ command: 'f(b' + JSON.stringify(data.substring(i, i + PY_CHUNK)) + ')', function: async () => await this.analyser.waitForPatern(/^[1-9][0-9]/, 5000, 'timeOut') });
+                    commands.push({ command: 'f(b' + JSON.stringify(bd.subarray(i, i + PY_CHUNK).toString().replace(/ä/g, '\\xc3\\xa4').replace(/ö/g, '\\xc3\\xb6').replace(/ü/g, '\\xc3\\xbc').replace(/Ä/g, '\\xc3\\x84').replace(/Ö/g, '\\xc3\\x96').replace(/Ü/g, '\\xc3\\x9C')) + ')', function: async () => await this.analyser.waitForPattern(/^[1-9][0-9]*/, 5000, 'timeOut') });
                     if (i % 10 === 0) {
                         commands.push({ command: 'print("s",gc.mem_free())', function: async () => await this.analyser.waitForPattern(/^s [0-9]+/, 5000, 'timeOut') });
                     }
@@ -596,7 +604,52 @@ export class MicrobitController implements ActionHolder {
         this.mutationListener.forEach(l => l.refresh(input));
     }
 
+    private getMpyCrossPath(): string | undefined {
+        const configured = vscode.workspace.getConfiguration('maqueen').get<string>('mpyCross');
+        const trimmed = configured?.trim();
+        if (!trimmed) {
+            return undefined;
+        }
+
+        if (path.isAbsolute(trimmed)) {
+            return trimmed;
+        }
+
+        const looksLikeRelativePath = trimmed.startsWith('.') || trimmed.includes('/') || trimmed.includes('\\');
+        if (!looksLikeRelativePath) {
+            return trimmed;
+        }
+
+        try {
+            const root = getRootPath(this.context);
+            return path.resolve(root, trimmed);
+        } catch {
+            return trimmed;
+        }
+    }
+
+    private async compilePyToMpy(sourcePath: string, targetFileName: string, mpyCrossPath: string): Promise<{ compiledPath: string, compiledName: string }> {
+        const baseName = path.basename(targetFileName, '.py');
+        const compiledName = `${baseName}.mpy`;
+        const compiledPath = path.join(os.tmpdir(), `maqueen-${baseName}-${Date.now()}.mpy`);
+
+        try {
+            await execFileAsync(mpyCrossPath, [sourcePath, '-o', compiledPath], { windowsHide: true });
+        } catch (err: any) {
+            if (err?.code === 'ENOENT') {
+                throw new CustomError(`mpy-cross executable not found: ${mpyCrossPath}`, errorType.mpyCrossNotFound, 324);
+            }
+            const details = typeof err?.stderr === 'string' && err.stderr.trim().length > 0
+                ? err.stderr.trim()
+                : getErrorMessage(err, true);
+            throw new CustomError(`Failed to compile ${path.basename(sourcePath)} with mpy-cross: ${details}`, errorType.fileUpload, 324);
+        }
+
+        return { compiledPath, compiledName };
+    }
+
     private async fileUpload(file: any) {
+        let compiledTempPath: string | undefined;
         try {
             let softReboot = false;
             const p = vscode.Uri.file(file.path).fsPath;
@@ -613,15 +666,93 @@ export class MicrobitController implements ActionHolder {
                 //no root
             }
             
+            const mpyCrossPath = this.getMpyCrossPath();
+            let uploadPath = p;
+            let uploadName = fileName;
+
+            if (mpyCrossPath && fileName.endsWith('.py')) {
+                this.analyser.messageToOuputChannel(l10n.t({ message: 'Compiling {0} with mpy-cross...', args: [fileName], comment: ['{0}: file name'] }));
+                const compiled = await this.compilePyToMpy(p, fileName, mpyCrossPath);
+                uploadPath = compiled.compiledPath;
+                uploadName = compiled.compiledName;
+                compiledTempPath = compiled.compiledPath;
+            }
+
             await this.connectToMicrobit();
             this.analyser.setUserMessages(false);
-            await this.put(p, fileName, softReboot);
+            if (uploadName.endsWith('.mpy')) {
+                await this.putMpy(uploadPath, uploadName, softReboot);
+            } else {
+                await this.put(uploadPath, uploadName, softReboot);
+            }
         } catch (err: any) {
             if (err?.type !== undefined) {
                 throw err;
             }
             throw new CustomError(getErrorMessage(err, false), errorType.fileUpload, 310);
+        } finally {
+            if (compiledTempPath) {
+                try {
+                    await fs.unlink(compiledTempPath);
+                } catch {
+                }
+            }
         }
+    }
+
+    /**
+     * Uploads a binary .mpy file to the micro:bit via the MicroPython REPL.
+     * Uses bytes([b0, b1, ...]) notation — no imports needed, safe for any binary content.
+     */
+    private async putMpy(filePath: string, target: string, softReboot: boolean = false): Promise<void> {
+        return new Promise(async (resolve, reject) => {
+            try {
+                await this.prepareMicrobitToWriteFile(target);
+                this.analyser.observeData((data) => {
+                    const m = data.match(/^s [0-9]+/);
+                    if (m) {
+                        const mem = parseInt(m[0].replace(/^s /, ''));
+                        if (mem < 5000) {
+                            return true;
+                        }
+                    }
+                    return false;
+                });
+
+                const fileUri = vscode.Uri.file(filePath);
+                const data = await vscode.workspace.fs.readFile(fileUri);
+
+                const CHUNK_SIZE = vscode.workspace.getConfiguration('maqueen').get<number>('chunkSizeMpy') ?? 20;
+                const commands: { command: string, function: Function }[] = [
+                    { command: 'import gc', function: () => sleep(5) },
+                    { command: `fd = open("${target}", "wb")`, function: () => sleep(5) },
+                    { command: 'f = fd.write', function: () => sleep(5) },
+                ];
+
+                for (let i = 0; i < data.length; i += CHUNK_SIZE) {
+                    const chunk = Array.from(data.subarray(i, i + CHUNK_SIZE)).join(',');
+                    commands.push({
+                        command: `f(bytes([${chunk}]))`,
+                        function: async () => await this.analyser.waitForPattern(/^[1-9][0-9]*/, 5000, 'timeOut')
+                    });
+                    if (i % (CHUNK_SIZE * 10) === 0) {
+                        commands.push({
+                            command: 'print("s",gc.mem_free())',
+                            function: async () => await this.analyser.waitForPattern(/^s [0-9]+/, 5000, 'timeOut')
+                        });
+                    }
+                }
+                commands.push({
+                    command: 'fd.close()',
+                    function: async () => await this.analyser.waitForPattern(/^>>> fd\.close\(\)$/, 5000, 'timeOut')
+                });
+
+                await this.execute(commands, softReboot, false, l10n.t({ message: '{0} was successfully uploaded.', args: [path.basename(filePath)], comment: ['{0}: file name'] }));
+                resolve();
+            } catch (err: any) {
+                reject(forwardError(err, getErrorMessage(err, false), errorType.fileUpload, 310));
+            }
+        });
     }
 }
 

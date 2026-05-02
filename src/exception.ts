@@ -57,6 +57,7 @@ export enum errorType {
     flash, //Problem beim Flashen
     ejectMicrobit, //Problem beim Auswerfen.
     noWorkspace, //Kein Workspace geöffnet.
+    mpyCrossNotFound, //mpy-cross executable could not be found.
 }
 
 export function getErrorMessage(err: any, includeId: boolean = false): string{
@@ -121,6 +122,9 @@ export async function error2user(error: VerboseError){
                 break;
             case errorType.noWorkspace:
                 advice = l10n.t('No workspace is open.');
+                break;
+            case errorType.mpyCrossNotFound:
+                advice = l10n.t('The mpy-cross executable was not found. Check the maqueen.mpyCross setting and ensure it points to an existing executable file.');
                 break;
             default:
                 advice = l10n.t({message: 'There is no error text for the error type {0}.', args: [error.type], comment:['{0} ist ein Fehlertyp.']});

@@ -108,6 +108,12 @@
       "{0}: file name"
     ]
   },
+  "Compiling {0} with mpy-cross.../{0}: file name": {
+    "message": "Compiling {0} with mpy-cross...",
+    "comment": [
+      "{0}: file name"
+    ]
+  },
   "All files on the Micro:bit have been deleted.": "All files on the Micro:bit have been deleted.",
   "Try to eject Micro:bit drive...": "Try to eject Micro:bit drive...",
   "Micro:bit drive has been ejected.": "Micro:bit drive has been ejected.",
@@ -143,5 +149,6 @@
     ]
   },
   "No workspace is open.": "No workspace is open.",
+  "The mpy-cross executable was not found. Check the maqueen.mpyCross setting and ensure it points to an existing executable file.": "The mpy-cross executable was not found. Check the maqueen.mpyCross setting and ensure it points to an existing executable file.",
   "The URL does not have the correct format.": "The URL does not have the correct format."
 }

@@ -38,7 +38,7 @@ jobs:
         run: npm ci
 
       - name: Rebuild native addons for Electron (per target)
-        run: npx electron-rebuild --force --version=37.6.0 --arch=${{ matrix.arch }}
+        run: npx electron-rebuild --force --version=39.8.9 --arch=${{ matrix.arch }}
 
       - name: Package VSIX (per target)
         run: npx vsce package --target ${{ matrix.platform }}-${{ matrix.arch }}

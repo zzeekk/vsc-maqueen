@@ -67,6 +67,7 @@ The extension provides the following settings:
 * `maqueen.advancedControl`: Provides additional commands for controlling the micro:bit.
 * `maqueen.logErrors`: Displays error messages in the output MaqueenErrors.
 * `maqueen.mpyCross`: Path to the `mpy-cross` executable. If set, uploaded Python files are compiled to `.mpy` and the `.mpy` file is uploaded.
+* `maqueen.compileMainToMpy`: If `true`, `main.py` is also compiled and uploaded as `.mpy` when `maqueen.mpyCross` is set. Default is `false`.
 You can download an mpy-cross binary for Micropython Release v1.19+ for Windows from https://www.bukys.eu/blog/230129_mpy-cross_the_ultimate_micropython_precompilation_tool._download_available.
 Note that this also needs a Microbit V2 firmware which is able to handle mpy files. See https://github.com/zzeekk/micropython-microbit-v2 for an extended version.
 

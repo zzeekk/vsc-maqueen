@@ -4,6 +4,7 @@
     "properties.advancedControl": "Display additional commands for the control unit.",
     "properties.logErrors": "Outputs error messages in the terminal.",
     "properties.mpyCross": "Path to the mpy-cross executable. If set, Python files are compiled to .mpy before upload.",
+    "properties.compileMainToMpy": "Also compile main.py to .mpy when mpy-cross is configured (default: false).",
     "properties.chunkSizePy": "Number of bytes transferred per command when uploading .py files (default: 54).",
     "properties.chunkSizeMpy": "Number of bytes transferred per command when uploading .mpy files (default: 20).",
     "command.createProject": "Create project",
@@ -28,6 +29,7 @@
     "command.loadExtLibFile": "Upload a new external module",
     "command.refreshExtLibFileToWorkspace": "Renews external module in the project",
     "command.addExtLibFile": "Add a new external module",
+    "command.uploadAllExtLibFiles": "Upload all external modules to Micro:bit",
     "command.removeExtLib": "Remove from Project",
     "command.ejectDevice": "Eject Micro:bit"
 }

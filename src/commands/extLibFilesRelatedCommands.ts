@@ -33,6 +33,10 @@ const commands: Commands = [
     {//Erneuert ein ExtLibFile im Workspace
         id: 'maqueen.refreshExtLibFileToWorkspace',
         action: (input: CommandInput)=>revealAction(input, 'refreshExtLibFileToWorkspace')
+    },
+    {//Lädt alle externen Module auf den Micro:bit
+        id: 'maqueen.uploadAllExtLibFiles',
+        action: (input: CommandInput)=>revealAction(input, 'uploadAllExtLibFiles')
     }
 ];
 

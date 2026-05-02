@@ -39,13 +39,13 @@ export class MicrobitController implements ActionHolder {
     }
 
     private createActionFrame(action: Function, finalAction?: Function) {
-        const actionFrame = async (p: any | void) => {
+        const actionFrame = async (...args: any[]) => {
             try {
                 if (this.lock) {
                     return;
                 }
                 this.lock = true;
-                await action(p);
+                await action(...args);
             } catch (err: any) {
                 logError(ErrorType.ACTION, "actionFrame", err);
                 await error2user(err);
@@ -92,7 +92,8 @@ export class MicrobitController implements ActionHolder {
                 );
             case 'uploadFile':
                 return this.createActionFrame(
-                    async (file: any) => {
+                    async (file: any, options?: { preserveOutput?: boolean }) => {
+                        const preserveOutput = options?.preserveOutput === true;
                         vscode.commands.executeCommand('setContext', 'maqueen.fileUploadRunning', true);
                         // .mpy files are binary — skip text document open/save
                         if (!String(file.label).endsWith('.mpy')) {
@@ -100,8 +101,14 @@ export class MicrobitController implements ActionHolder {
                             const doc = opened ?? await vscode.workspace.openTextDocument(file.path);
                             doc.save();
                         }
-                        this.analyser.clear();
-                        this.analyser.setOn(false);
+                        if (!preserveOutput) {
+                            this.analyser.clear();
+                        }
+                        if (options) {
+                            this.analyser.setFilter();
+                        } else {
+                            this.analyser.setOn(false);
+                        }
                         await this.connectToMicrobit();
                         this.port!.write(Buffer.from([0x02]));
                         await sleep(50);
@@ -121,7 +128,44 @@ export class MicrobitController implements ActionHolder {
                 return this.createActionFrame(async () => {
                     this.analyser.setUserMessages(false);
                     this.refreshListener({ sourceId: 'prep', progressAnimation: true });
-                    await flashMicrobit(this.context.extensionPath, this.analyser.messageToOuputChannel);
+                    
+                    // Get workspace root and scan for .hex files
+                    let customFirmwarePath: string | undefined;
+                    try {
+                        const root = getRootPath(this.context);
+                        const rootUri = vscode.Uri.file(root);
+                        const entries = await vscode.workspace.fs.readDirectory(rootUri);
+                        const hexFiles = entries
+                            .filter(([name, type]) => type === vscode.FileType.File && name.endsWith('.hex'))
+                            .map(([name]) => name);
+                        
+                        // Create quick pick options
+                        const options: vscode.QuickPickItem[] = [
+                            { label: 'original', description: 'MicroPython firmware from extension' }
+                        ];
+                        hexFiles.forEach(file => {
+                            options.push({ label: file, description: `Project file: ${file}` });
+                        });
+                        
+                        if (options.length > 1) {
+                            const selected = await vscode.window.showQuickPick(options, {
+                                placeHolder: l10n.t('Select firmware to flash')
+                            });
+                            if (!selected) {
+                                this.analyser.setUserMessages(true);
+                                this.refreshListener({ sourceId: 'prep', progressAnimation: false });
+                                return;
+                            }
+                            
+                            if (selected.label !== 'original') {
+                                customFirmwarePath = path.join(root, selected.label);
+                            }
+                        }
+                    } catch (err) {
+                        // No workspace root, use original firmware
+                    }
+                    
+                    await flashMicrobit(this.context.extensionPath, this.analyser.messageToOuputChannel, customFirmwarePath);
                 }, () => {
                     this.analyser.setUserMessages(true);
                     this.refreshListener({ sourceId: 'prep', progressAnimation: false });
@@ -326,7 +370,12 @@ export class MicrobitController implements ActionHolder {
     }
     async checkMicroPython() {
         try {
-            const r = await this.execute([{ command: 'print("hello")', function: async () => await this.analyser.waitForPattern(/hello$/, 1000, 'timeOutSayHello') }], false, false);
+            this.analyser.setUserMessages(false);
+            try {
+                const r = await this.execute([{ command: 'print("hello")', function: async () => await this.analyser.waitForPattern(/hello$/, 1000, 'timeOutSayHello') }], false, false);
+            } finally {
+                this.analyser.setUserMessages(true);
+            }
         } catch (err: any) {
             throw new CustomError('The Micro:bit does not react as desired. Press the reset button on Micro:bit.', errorType.pressResetButton, 320);
         }
@@ -667,10 +716,14 @@ export class MicrobitController implements ActionHolder {
             }
             
             const mpyCrossPath = this.getMpyCrossPath();
+            const compileMainToMpy = vscode.workspace.getConfiguration('maqueen').get<boolean>('compileMainToMpy') ?? false;
             let uploadPath = p;
             let uploadName = fileName;
+            const shouldCompileToMpy = mpyCrossPath
+                && fileName.endsWith('.py')
+                && (compileMainToMpy || fileName.toLowerCase() !== 'main.py');
 
-            if (mpyCrossPath && fileName.endsWith('.py')) {
+            if (shouldCompileToMpy) {
                 this.analyser.messageToOuputChannel(l10n.t({ message: 'Compiling {0} with mpy-cross...', args: [fileName], comment: ['{0}: file name'] }));
                 const compiled = await this.compilePyToMpy(p, fileName, mpyCrossPath);
                 uploadPath = compiled.compiledPath;
@@ -732,8 +785,8 @@ export class MicrobitController implements ActionHolder {
                 for (let i = 0; i < data.length; i += CHUNK_SIZE) {
                     const chunk = Array.from(data.subarray(i, i + CHUNK_SIZE)).join(',');
                     commands.push({
-                        command: `f(bytes([${chunk}]))`,
-                        function: async () => await this.analyser.waitForPattern(/^[1-9][0-9]*/, 5000, 'timeOut')
+                        command: `print("w",f(bytes([${chunk}])))`,
+                        function: async () => await this.analyser.waitForPattern(/^w [1-9][0-9]*/, 5000, 'timeOut')
                     });
                     if (i % (CHUNK_SIZE * 10) === 0) {
                         commands.push({

@@ -1,7 +1,6 @@
 import * as vscode from 'vscode';
 import { MutationListener } from '../controller/interfaces';
 import { ListenerInput } from '../types';
-import { AnimatedItem } from './animatedItem';
 import { l10n } from 'vscode';
 
 export class ControlProvider implements vscode.TreeDataProvider<ControlItem>, MutationListener {
@@ -13,13 +12,6 @@ export class ControlProvider implements vscode.TreeDataProvider<ControlItem>, Mu
     refresh(input:ListenerInput|void): void {
         if(input?.flag !== undefined) {
             this.showOutput = input.flag;
-        }
-        if(input&&input.progressAnimation!==undefined){
-            for(let i = 0; i < this.elements.length; i++){
-                if(input.sourceId === this.elements[i].id){
-                    this.elements[i].showAnimation(input.progressAnimation === true, ()=>this._onDidChangeTreeData.fire());
-                }  
-            };
         }
         this._onDidChangeTreeData.fire();
     }
@@ -123,7 +115,7 @@ export class ControlProvider implements vscode.TreeDataProvider<ControlItem>, Mu
     }
 }
 
-class ControlItem extends AnimatedItem {
+class ControlItem extends vscode.TreeItem {
     constructor(
         public readonly label: string,
         public readonly collapsibleState: vscode.TreeItemCollapsibleState,

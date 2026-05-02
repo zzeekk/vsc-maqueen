@@ -35,23 +35,42 @@ function getMicrobitDrives() {
                 }
             });
         } else if (os.platform() === 'win32') {
-            // Windows - Laufwerksbuchstaben abrufen
+            // Windows - try Get-CimInstance first, fall back to wmic
             exec('Get-CimInstance Win32_LogicalDisk | Select DeviceID, VolumeName | ConvertTo-Json', (error, stdout, stderr) => {
                 if (error) {
-                    reject(new Exception(`Error when retrieving the volumes: ${stderr}`, 318));
+                    // Fallback to wmic if PowerShell command fails
+                    exec('wmic logicaldisk get name,volumename /format:list', (wmicError, wmicStdout, wmicStderr) => {
+                        if (wmicError) {
+                            reject(new Exception(`Error when retrieving the volumes: ${wmicStderr}`, 318));
+                            return;
+                        }
+                        // Parse wmic output: Name=C:, VolumeName=MICROBIT, etc.
+                        const lines = wmicStdout.split('\n').filter(line => line.trim().length > 0);
+                        const drives: { name: string; volumeName: string }[] = [];
+                        for (let i = 0; i < lines.length; i += 2) {
+                            const nameMatch = lines[i].match(/Name=(.+)/);
+                            const volMatch = lines[i + 1]?.match(/VolumeName=(.+)/);
+                            if (nameMatch && volMatch) {
+                                drives.push({ name: nameMatch[1].trim(), volumeName: volMatch[1].trim() });
+                            }
+                        }
+                        const mdrives = drives.filter(d => d.volumeName === 'MICROBIT').map(d => d.name);
+                        if (!mdrives || mdrives.length === 0) {
+                            reject(new CustomError('No micro:bit was found.', errorType.noMicrobit, 311));
+                        } else {
+                            resolve(mdrives);
+                        }
+                    });
                 } else {
                     let drives = JSON.parse(stdout);
                     if(!Array.isArray(drives)){
                         drives = [drives];
                     }
                     const mdrives = drives.filter((drive: { VolumeName: string; }) => drive.VolumeName == "MICROBIT");
-                    //const drives = stdout.split('\r\n').filter(line => line.includes(':'));
-                    //const mdrives = drives.filter(drive => drive.match(/MICROBIT/) !== null);
                     if (!mdrives || mdrives.length === 0) {
                         reject(new CustomError('No micro:bit was found.', errorType.noMicrobit, 311));
                     } else {
                         const r:string[] = mdrives.map((drive: { DeviceID: string; })=>drive.DeviceID);
-                        //const r: string[] = [];
                         resolve(r);
                     }
                 }
@@ -76,8 +95,8 @@ function getMicrobitDrives() {
         }
     });
 }
-export async function flashMicrobit(extensionPath: string, send: Function) {
-    const sourceFilePath = path.join(extensionPath, 'micropython.hex');
+export async function flashMicrobit(extensionPath: string, send: Function, customFirmwarePath?: string) {
+    const sourceFilePath = customFirmwarePath || path.join(extensionPath, 'micropython.hex');
     try {
         const microbitDrives = await getMicrobitDrives();
         console.log(microbitDrives)

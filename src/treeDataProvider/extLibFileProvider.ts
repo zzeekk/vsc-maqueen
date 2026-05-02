@@ -92,6 +92,21 @@ export class ExtLibFileProvider extends FileProvider<ExtLibFile> implements vsco
                     async (item: any) => {
                         this.parentDirectory && await this.copyToWorkspace(this.parentDirectory, item.label, true) && this.refresh();
                     });
+            case 'uploadAllExtLibFiles':
+                return this.createActionFrame(
+                    async () => {
+                        await this.getChildren();
+                        const filesToUpload = this.files.filter(file => file.label.endsWith('.py') || file.label.endsWith('.mpy'));
+                        if (filesToUpload.length === 0) {
+                            vscode.window.showInformationMessage(l10n.t('No external modules available for upload.'));
+                            return;
+                        }
+                        for (let i = 0; i < filesToUpload.length; i++) {
+                            await vscode.commands.executeCommand('maqueen.uploadFile', filesToUpload[i], {
+                                preserveOutput: i > 0
+                            });
+                        }
+                    });
 
         }
         throw new Exception('getAction does not recognise a command for passed actionId', 500);

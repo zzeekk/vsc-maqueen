@@ -50,6 +50,11 @@
           "default": "",
           "description": "%properties.mpyCross%"
         },
+        "maqueen.compileMainToMpy": {
+          "type": "boolean",
+          "default": false,
+          "description": "%properties.compileMainToMpy%"
+        },
         "maqueen.chunkSizePy": {
           "type": "number",
           "default": 54,
@@ -122,6 +127,11 @@
         "command": "maqueen.addExtLibFile",
         "title": "%command.addExtLibFile%",
         "icon": "$(new-file)"
+      },
+      {
+        "command": "maqueen.uploadAllExtLibFiles",
+        "title": "%command.uploadAllExtLibFiles%",
+        "icon": "$(cloud-upload)"
       },
       {
         "command": "maqueen.loadExtLibFile",
@@ -210,13 +220,18 @@
           "icon": "$(new-file)"
         },
         {
+          "command": "maqueen.uploadAllExtLibFiles",
+          "group": "navigation@0",
+          "when": "view == extLibFileExplorer"
+        },
+        {
           "command": "maqueen.addExtLibFile",
-          "group": "navigation",
+          "group": "navigation@1",
           "when": "view == extLibFileExplorer"
         },
         {
           "command": "maqueen.loadExtLibFile",
-          "group": "navigation",
+          "group": "navigation@2",
           "when": "view == extLibFileExplorer"
         }
       ],

@@ -4,6 +4,7 @@
     "properties.advancedControl": "Zusätzliche Befehle für die Steuerung anzeigen.",
     "properties.logErrors": "Gibt Fehlermeldungen im Terminal aus.",
     "properties.mpyCross": "Pfad zur mpy-cross-Executable. Wenn gesetzt, werden Python-Dateien vor dem Upload zu .mpy kompiliert.",
+    "properties.compileMainToMpy": "main.py ebenfalls zu .mpy kompilieren, wenn mpy-cross konfiguriert ist (Standard: false).",
     "properties.chunkSizePy": "Anzahl Bytes, die pro Befehl beim Hochladen von .py-Dateien übertragen werden (Standard: 54).",
     "properties.chunkSizeMpy": "Anzahl Bytes, die pro Befehl beim Hochladen von .mpy-Dateien übertragen werden (Standard: 20).",
     "command.createProject": "Erstelle Projekt",
@@ -28,6 +29,7 @@
     "command.loadExtLibFile": "Lade ein neues externes Modul",
     "command.refreshExtLibFileToWorkspace": "Erneuere die externen Module im Projekt",
     "command.addExtLibFile": "Füge ein neues externes Modul hinzu",
+    "command.uploadAllExtLibFiles": "Lade alle externen Module auf den Micro:bit",
     "command.removeExtLib": "Lösche von Projekt",
     "command.ejectDevice": "Wirf Micro:bit aus"
 }
